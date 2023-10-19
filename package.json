@@ -1,7 +1,7 @@
 {
-  "name": "jfa-whatsapp-chatbot",
+  "name": "chatbot-enchentes",
   "version": "0.0.1",
-  "description": "WhatsApp Chatbot",
+  "description": "Chatbot-enchentes",
   "type": "module",
   "scripts": {
     "dev": "node --es-module-specifier-resolution=node src/main.js",
@@ -23,20 +23,6 @@
     "conversations": "tail -f logs/conversations.log",
     "test": "jest"
   },
-  "repository": "git@github.com:jfadev/jfa-whatsapp-chatbot.git",
-  "bugs": {
-    "url": "https://github.com/jfadev/jfa-whatsapp-chatbot/issues"
-  },
-  "homepage": "https://github.com/jfadev/jfa-whatsapp-chatbot#readme",
-  "author": "Jordi Fernandes Alves <jfadev@gmail.com>",
-  "license": "MIT",
-  "keywords": [
-    "nodejs",
-    "whatsapp",
-    "chatbot",
-    "venom",
-    "docker"
-  ],
   "dependencies": {
     "child_process": "^1.0.2",
     "express": "^4.17.3",

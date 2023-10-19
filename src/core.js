@@ -153,7 +153,7 @@ export async function session(name, conversation) {
         setTimeout(() => {
           log("Debug", `Try reload client`);
           client.close();
-          // resolve(session(name, conversation));
+           resolve(session(name, conversation));
         }, 90000);
 
         resolve(client);
@@ -430,7 +430,6 @@ export async function start(client, conversation) {
                 sessions.find((o) => o.from === message.from).parents = [];
               }
             }
-            client.stopTyping(message.from);
           }
         }
       }
