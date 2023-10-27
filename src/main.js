@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 // import schedule from "node-schedule";
 import { session, log } from "./core";
 import conversation from "./conversations/conversation";
@@ -9,7 +8,10 @@ import conversation from "./conversations/conversation";
 try {
   /* Single WhatsApp account */
   /* ------------------------*/
+
+
   session("chatbotSession", conversation);
+
   // OR:
   // const chatbot = await session("chatbotSession", conversation);
   /* ---------------------------*/
@@ -37,3 +39,4 @@ try {
   console.log("error", error.toString());
   log("Error", `${error.toString()} Please try restart de bot.`);
 }
+

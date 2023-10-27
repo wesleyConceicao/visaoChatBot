@@ -5,8 +5,8 @@ import fs from "fs";
 import http from "http";
 import { exec } from "child_process";
 import mime from "mime-types";
-// import sheetdb from "sheetdb-node";
-// const clientSheet = sheetdb({address: 'ala8mkfv4scdt'});
+import sheetdb from "sheetdb-node";
+const clientSheet = sheetdb({address: 'ala8mkfv4scdt'});
 // import {getUser, setUser} from "./databases/database";
 
 console.log("\x1b[36m", "--- Jfa WhatsApp Chatbot (by @jfadev) ---", "\x1b[0m");
@@ -316,15 +316,15 @@ export async function httpCtrl(name, port = 3000) {
   });
 }
 
-// // função para povoar o google sheet's 
-// function isEmptyObject(obj) {
-//   for (var key in obj) {
-//       if (Object.prototype.hasOwnProperty.call(obj, key)){
-//           return false;
-//       }
-//   }
-//   return true;
-// }
+// função para povoar o google sheet's 
+function isEmptyObject(obj) {
+  for (var key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)){
+          return false;
+      }
+  }
+  return true;
+}
 
 
 
@@ -345,43 +345,44 @@ export async function start(client, conversation) {
         sessions.push({ from: message.from, parent: 0, parents: [] });
         
       }
-    // função para logar junto com o google sheet e armazenar as infos no sheet
-    // quando obtiver os questionamentos das perguntas pegar as infos restantes obtidas pelo usuario 
-    // const user = message.from.replace(/\D/g, '');
-    // clientSheet.read({search: {whatsapp: user}}).then(function(data){
-    //     console.log(data);
-    //     const userJson = JSON.parse(data);
-    //     if(isEmptyObject(userJson)){
-    //         clientSheet.create({id: 'usuario', whatsapp:user}).then(function(data){
-    //             console.log(data);
-    //         }, function(err){
-    //             console.log(err);
-    //         });
-    //     }
-    // }, function(err){
-    //     console.log(err);
-    // });
-    // // utilizando o comando !sheet é possivel enviar respostas para os usuarios 
-    // if (message.body.startsWith('!sheet')){
-    //     const mensagem = message.body.slice(7);
-    //         clientSheet.read().then(function(data){
-    //             const respostas = JSON.parse(data);
-    //             respostas.forEach((resposta, i) => {
-    //                 const whatsapp = resposta.whatsapp;
-    //                 setTimeout(function(){
-    //                     client.sendMessage(whatsapp + '@c.us', mensagem);
-    //                 }, 1000 + Math.floor(Math.random() * 8000) * (1+i) )
-    //             });
-    //         }, function(error){
-    //             console.log(error);
-    //         });
-    //   };
-    // implementação do mySQL 
-    // const user = message.from.replace(/\D/g, '');
-    // const getUserFrom = await getUser(user);
-    //   if (getUserFrom == false){
-    //       setUserFrom = await setUser(user);
-    //     };
+      
+      // função para logar junto com o google sheet e armazenar as infos no sheet
+      // quando obtiver os questionamentos das perguntas pegar as infos restantes obtidas pelo usuario 
+      // const user = message.from.replace(/\D/g, '');
+      // clientSheet.read({search: {whatsapp: user}}).then(function(data){
+      //     console.log(data);
+      //     const userJson = JSON.parse(data);
+      //     if(isEmptyObject(userJson)){
+      //         clientSheet.create({id: 'usuario', whatsapp:user}).then(function(data){
+      //             console.log(data);
+      //         }, function(err){
+      //             console.log(err);
+      //         });
+      //     }
+      // }, function(err){
+      //     console.log(err);
+      // });
+      // // utilizando o comando !sheet é possivel enviar respostas para os usuarios 
+      // if (message.body.startsWith('!sheet')){
+      //     const mensagem = message.body.slice(7);
+      //         clientSheet.read().then(function(data){
+      //             const respostas = JSON.parse(data);
+      //             respostas.forEach((resposta, i) => {
+      //                 const whatsapp = resposta.whatsapp;
+      //                 setTimeout(function(){
+      //                     client.sendMessage(whatsapp + '@c.us', mensagem);
+      //                 }, 1000 + Math.floor(Math.random() * 8000) * (1+i) )
+      //             });
+      //         }, function(error){
+      //             console.log(error);
+      //         });
+      //   };
+      // implementação do mySQL 
+      // const user = message.from.replace(/\D/g, '');
+      // const getUserFrom = await getUser(user);
+      //   if (getUserFrom == false){
+      //       setUserFrom = await setUser(user);
+      //     };
       const parent = sessions.find((o) => o.from === message.from).parent;
       const parents = sessions.find((o) => o.from === message.from).parents;
       // const input = message.body ? message.body.toLowerCase() : message.body;
@@ -416,6 +417,7 @@ export async function start(client, conversation) {
               }
             }
             client.startTyping(message.from);
+
             log(
               "Receive",
               `from: ${message.from}, id: ${reply.id}, parent: ${reply.parent}, pattern: ${reply.pattern}, input: ${input}`
@@ -444,7 +446,128 @@ export async function start(client, conversation) {
                 parents,
                 media
               );
+            
             }
+             // caso o usuario mande mensagem e for verdadeiro 
+            // if(message.from.replace(/\D/g, '') === true){
+              // essa função vou usar para armazenar o numero de telefone da pessoa que enviou a mensagem 
+              const user = message.from.replace(/\D/g, '');
+
+              if(reply.id === 7 ){
+                var bairro = message.body;
+              }
+              if( reply.id === 5){
+                var enchente = input;
+              } 
+              if(reply.id === 8){
+                var casa_vulneravel = input;
+              }
+              if (reply.id === 14 ){
+                var precisa_de_doacao = input;
+              }
+              if (reply.id === 11 ){
+                var ser_voluntario = input;
+              }
+              const app = express();
+
+              app.use(express.json());
+
+              app.get("/", async (req, res) => {
+                
+                // const { request, name } = req.body;
+                
+                  const { google } = require("googleapis");
+                  const auth = new google.auth.GoogleAuth({
+                    //trocar keyfile para destino da credencial
+                    keyFile: "credential.json",
+                    scopes: "https://www.googleapis.com/auth/spreadsheets",
+                  });
+                  const client = await auth.getClient();
+                  const googleSheets = google.sheets({ version: "v4", auth: client });
+                  // TROCAR API
+                  const spreadSheetsID = "1PI2RbjuItgGOVl76AEA4X7EZxThKszW-bvGuonJejzA";
+                  const metaData = await googleSheets.spreadsheets.get({
+                    auth,
+                    spreadsheetId: spreadSheetsID,
+                  });
+                  // Lê as linhas do spreadsheet
+  
+                  // app.post("/addRow", async (req, res) => {
+                  //   const { googleSheets, auth, spreadsheetId } = await getAuthSheets();
+                  
+                  //   const { values } = [bairro, enchente, casa_vulneravel, ser_voluntario];
+                  
+                  //   const row = await googleSheets.spreadsheets.values.append({
+                  //     auth,
+                  //     spreadsheetId,
+                  //     range: "Página1",
+                  //     valueInputOption: "USER_ENTERED",
+                  //     resource: {
+                  //       values: values,
+                  //     },
+                  //   });
+                  
+                  //   res.send(row.data);
+                  // });
+  
+                    // Lê as linhas do spreadsheet
+                    // const getRows = await googleSheets.spreadsheets.values.get({
+                    //   auth,
+                    //   spreadsheetId: spreadSheetsID,
+                    //   range: "Página1!A2:F34",
+                    // });
+  
+                  const { values } = [user, bairro, enchente, casa_vulneravel, ser_voluntario, precisa_de_doacao];
+
+                    // aqui quero criar infos fornecidadas pelo usuario 
+
+                  const postRows = await googleSheets.spreadsheets.values.append({
+                      auth,
+                      spreadsheetId: spreadSheetsID,
+                      range: "Página1!A:F",
+                      valueInputOption: "USER_ENTERED",
+                      resource: {
+                        values: values,
+                      },
+                      
+                  });
+                  res.json(postRows.data);
+                  res.send(postRows.data);
+  
+                    // Write row(s) to spreadsheet
+                    // await googleSheets.spreadsheets.values.append({
+                    //   auth,
+                    //   spreadsheetId: spreadSheetsID,
+                    //   range: "Página1!A:B",
+                    //   valueInputOption: "USER_ENTERED",
+                    //   resource: {
+                    //     values: [[bairro, enchente, casa_vulneravel, ser_voluntario]],
+                    //   },
+                    // });
+                  console.log(postRows);
+              });
+            // }
+            console.log("passou ??");
+            // aqui eu armazeno as respostas dos usuarios 
+            // values = [bairro, enchente, casa_vulneravel, ser_voluntario];
+
+            // codigo do sheetdb 
+            // const user = message.from.replace(/\D/g, '');
+            // clientSheet.read({search: {whatsapp: user, bairro: bairro, enchente: enchente, casa_vulneravel: casa_vulneravel , precisa_de_doacao : precisa_de_doacao, ser_voluntario: ser_voluntario}}).then(function(dataSheet){
+            //   console.log(dataSheet);
+            //   const dataJson = JSON.parse(dataSheet);
+            //   if(isEmptyObject(dataJson)){
+              
+            //     clientSheet.create({whatsapp: user, bairro: bairro, enchente: enchente, casa_vulneravel: casa_vulneravel , precisa_de_doacao : precisa_de_doacao, ser_voluntario: ser_voluntario}).then(function(dataSheet){
+            //             console.log(dataSheet);
+            //       }, function(err){
+            //             console.log(err);
+            //       });
+            //     }
+            //   },
+            //   function(err){
+            //   console.log(err);
+            // });
     
             // TODO: Verifty
             // if (reply.hasOwnProperty("message")) {
@@ -492,36 +615,18 @@ export async function start(client, conversation) {
                 sessions.find((o) => o.from === message.from).parents = [];
               }
             }
-          }
         }
-        // const user = message.from.replace(/\D/g, ''); 
-        // const bairro =  sessions.find((o) => o.id === 7).parents.push({ id: reply.id, input: input });
-        // const enchente = sessions.find((o) => o.id === 5).input = input;
-        // const casa_vulneravel = sessions.find((o) => o.id === 8).input = input;
-        // const precisa_de_doacao = sessions.find((o) => o.id === 14).input = input;
-        // const ser_voluntario = sessions.find((o) => o.id === 11).input = input;
-        // // [bairro: 7 , enchente: 5, Casa_vulneravel: 8, precisa_de_doação: 14, ser_voluntario:11 ]
-        // clientSheet.read({search: {whatsapp: user, bairro: bairro, enchente: enchente, casa_vulneravel: casa_vulneravel , precisa_de_doacao : precisa_de_doacao, ser_voluntario: ser_voluntario}}).then(function(dataSheet){
-        //       console.log(dataSheet);
-        //       const dataJson = JSON.parse(dataSheet);
-        //       if(isEmptyObject(dataJson)){
-        //           clientSheet.create({bairro: bairro, enchente: enchente, casa_vulneravel: casa_vulneravel , precisa_de_doacao : precisa_de_doacao, ser_voluntario: ser_voluntario}).then(function(dataSheet){
-        //               console.log(dataSheet);
-        //           }, function(err){
-        //               console.log(err);
-        //           });
-        //       }
-        //   }, function(err){
-        //       console.log(err);
-        // });
       }
-  });
-    
-  } catch (err) {
+    }
+});
+
+  } 
+  catch (err) {
     client.close();
     error(err);
   }
 }
+
 
 /**
  * Send link preview
@@ -624,6 +729,7 @@ async function watchSendAudio(client, message, reply) {
     }
   }
 }
+
 
 /**
  * Send simple text
