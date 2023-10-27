@@ -5,6 +5,9 @@ import fs from "fs";
 import http from "http";
 import { exec } from "child_process";
 import mime from "mime-types";
+// import sheetdb from "sheetdb-node";
+// const clientSheet = sheetdb({address: 'ala8mkfv4scdt'});
+// import {getUser, setUser} from "./databases/database";
 
 console.log("\x1b[36m", "--- Jfa WhatsApp Chatbot (by @jfadev) ---", "\x1b[0m");
 
@@ -313,6 +316,18 @@ export async function httpCtrl(name, port = 3000) {
   });
 }
 
+// // função para povoar o google sheet's 
+// function isEmptyObject(obj) {
+//   for (var key in obj) {
+//       if (Object.prototype.hasOwnProperty.call(obj, key)){
+//           return false;
+//       }
+//   }
+//   return true;
+// }
+
+
+
 /**
  * Start run listener of whatsapp messages
  * @param {Object} client
@@ -320,12 +335,53 @@ export async function httpCtrl(name, port = 3000) {
  */
 export async function start(client, conversation) {
   log("Start", `Conversation flow (${conversation.length} replies) running...`);
+
+
   try {
+
     let sessions = [];
     client.onMessage(async (message) => {
       if (!sessions.find((o) => o.from === message.from)) {
         sessions.push({ from: message.from, parent: 0, parents: [] });
+        
       }
+    // função para logar junto com o google sheet e armazenar as infos no sheet
+    // quando obtiver os questionamentos das perguntas pegar as infos restantes obtidas pelo usuario 
+    // const user = message.from.replace(/\D/g, '');
+    // clientSheet.read({search: {whatsapp: user}}).then(function(data){
+    //     console.log(data);
+    //     const userJson = JSON.parse(data);
+    //     if(isEmptyObject(userJson)){
+    //         clientSheet.create({id: 'usuario', whatsapp:user}).then(function(data){
+    //             console.log(data);
+    //         }, function(err){
+    //             console.log(err);
+    //         });
+    //     }
+    // }, function(err){
+    //     console.log(err);
+    // });
+    // // utilizando o comando !sheet é possivel enviar respostas para os usuarios 
+    // if (message.body.startsWith('!sheet')){
+    //     const mensagem = message.body.slice(7);
+    //         clientSheet.read().then(function(data){
+    //             const respostas = JSON.parse(data);
+    //             respostas.forEach((resposta, i) => {
+    //                 const whatsapp = resposta.whatsapp;
+    //                 setTimeout(function(){
+    //                     client.sendMessage(whatsapp + '@c.us', mensagem);
+    //                 }, 1000 + Math.floor(Math.random() * 8000) * (1+i) )
+    //             });
+    //         }, function(error){
+    //             console.log(error);
+    //         });
+    //   };
+    // implementação do mySQL 
+    // const user = message.from.replace(/\D/g, '');
+    // const getUserFrom = await getUser(user);
+    //   if (getUserFrom == false){
+    //       setUserFrom = await setUser(user);
+    //     };
       const parent = sessions.find((o) => o.from === message.from).parent;
       const parents = sessions.find((o) => o.from === message.from).parents;
       // const input = message.body ? message.body.toLowerCase() : message.body;
@@ -364,9 +420,12 @@ export async function start(client, conversation) {
               "Receive",
               `from: ${message.from}, id: ${reply.id}, parent: ${reply.parent}, pattern: ${reply.pattern}, input: ${input}`
             );
+            
             sessions
               .find((o) => o.from === message.from)
               .parents.push({ id: reply.id, input: input, media: media });
+
+    
             if (reply.hasOwnProperty("beforeReply")) {
               reply.message = await reply.beforeReply(
                 message.from,
@@ -376,6 +435,7 @@ export async function start(client, conversation) {
                 media
               );
             }
+
             if (reply.hasOwnProperty("beforeForward")) {
               reply.forward = reply.beforeForward(
                 message.from,
@@ -385,10 +445,12 @@ export async function start(client, conversation) {
                 media
               );
             }
+    
             // TODO: Verifty
             // if (reply.hasOwnProperty("message")) {
             //   reply.message = reply.message.replace(/\$input/g, input);
             // }
+           
             await watchSendLinkPreview(client, message, reply);
             await watchSendButtons(client, message, reply);
             await watchSendImage(client, message, reply);
@@ -432,8 +494,29 @@ export async function start(client, conversation) {
             }
           }
         }
+        // const user = message.from.replace(/\D/g, ''); 
+        // const bairro =  sessions.find((o) => o.id === 7).parents.push({ id: reply.id, input: input });
+        // const enchente = sessions.find((o) => o.id === 5).input = input;
+        // const casa_vulneravel = sessions.find((o) => o.id === 8).input = input;
+        // const precisa_de_doacao = sessions.find((o) => o.id === 14).input = input;
+        // const ser_voluntario = sessions.find((o) => o.id === 11).input = input;
+        // // [bairro: 7 , enchente: 5, Casa_vulneravel: 8, precisa_de_doação: 14, ser_voluntario:11 ]
+        // clientSheet.read({search: {whatsapp: user, bairro: bairro, enchente: enchente, casa_vulneravel: casa_vulneravel , precisa_de_doacao : precisa_de_doacao, ser_voluntario: ser_voluntario}}).then(function(dataSheet){
+        //       console.log(dataSheet);
+        //       const dataJson = JSON.parse(dataSheet);
+        //       if(isEmptyObject(dataJson)){
+        //           clientSheet.create({bairro: bairro, enchente: enchente, casa_vulneravel: casa_vulneravel , precisa_de_doacao : precisa_de_doacao, ser_voluntario: ser_voluntario}).then(function(dataSheet){
+        //               console.log(dataSheet);
+        //           }, function(err){
+        //               console.log(err);
+        //           });
+        //       }
+        //   }, function(err){
+        //       console.log(err);
+        // });
       }
-    });
+  });
+    
   } catch (err) {
     client.close();
     error(err);

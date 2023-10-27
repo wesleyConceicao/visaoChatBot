@@ -28,8 +28,11 @@
     "express": "^4.17.3",
     "fs": "^0.0.1-security",
     "http": "^0.0.1-security",
+    "mysql2": "^3.6.2",
     "node-fetch": "^3.1.0",
     "puppeteer": "19.8.5",
+    "sequelize": "^6.33.0",
+    "sheetdb-node": "^0.0.12",
     "sync-fetch": "^0.4.1",
     "venom-bot": "^5.0.1"
   },
