@@ -485,7 +485,7 @@ export async function start(client, conversation) {
                   const client = await auth.getClient();
                   const googleSheets = google.sheets({ version: "v4", auth: client });
                   // TROCAR API
-                  const spreadSheetsID = "1PI2RbjuItgGOVl76AEA4X7EZxThKszW-bvGuonJejzA";
+                  const spreadSheetsID = "coloque o ID";
                   const metaData = await googleSheets.spreadsheets.get({
                     auth,
                     spreadsheetId: spreadSheetsID,
