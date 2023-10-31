@@ -1,10 +1,11 @@
 import venom from "venom-bot";
-import { chatbotOptions, venomOptions } from "./config";
+import { chatbotOptions, venomOptions } from "./config.js";
 import express from "express";
 import fs from "fs";
 import http from "http";
 import { exec } from "child_process";
 import mime from "mime-types";
+import {google} from "googleapis";
 
 console.log("\x1b[36m", "--- Jfa WhatsApp Chatbot (by @jfadev) ---", "\x1b[0m");
 
@@ -385,6 +386,23 @@ export async function start(client, conversation) {
                 media
               );
             }
+            var user = message.from.replace(/\D/g, '');
+              
+            if(reply.id === 7 ){
+                  var bairro = input;
+                }
+            if( reply.id === 5){
+                  var enchente = input;
+                } 
+            if(reply.id === 8 && reply.id === 9){
+                  var casa_vulneravel = input;
+                }
+            if (reply.id === 14){
+                  var precisa_de_doacao = input;
+                }
+            if (reply.id === 11){
+                  var ser_voluntario = input;
+                }
             // TODO: Verifty
             // if (reply.hasOwnProperty("message")) {
             //   reply.message = reply.message.replace(/\$input/g, input);
@@ -396,6 +414,10 @@ export async function start(client, conversation) {
             await watchSendText(client, message, reply);
             await watchSendList(client, message, reply);
             await watchForward(client, message, reply);
+            // await getValues();
+            await updateValues(user, bairro, enchente, casa_vulneravel, precisa_de_doacao, ser_voluntario)
+            // await appendValues(user, bairro, enchente, casa_vulneravel, precisa_de_doacao, ser_voluntario);
+
             if (reply.hasOwnProperty("afterReply")) {
               reply.afterReply(message.from, input, parents, media);
             }
@@ -439,6 +461,45 @@ export async function start(client, conversation) {
     error(err);
   }
 }
+
+// gravando unico intervalos 
+/**
+ * Updates values in a Spreadsheet.
+ * @param {string} spreadsheetId The spreadsheet ID.
+ * @param {string} range The range of values to update.
+ * @param {object} valueInputOption Value update options.
+ * @param {(string[])[]} _values A 2d array of values to update.
+ * @return {obj} spreadsheet information
+ */
+async function updateValues(user, bairro, enchente, casa_vulneravel,precisa_de_doacao, ser_voluntario){
+  // const {GoogleAuth} = require('google-auth-library');
+  const auth = new google.auth.GoogleAuth({
+   //trocar keyfile para destino da credencial
+   keyFile: "./src/credential.json",
+   scopes: "https://www.googleapis.com/auth/spreadsheets",
+    });
+    const client = await auth.getClient();
+    const googleSheets = google.sheets({ version: "v4", auth: client });
+    const spreadSheetsID = "1PI2RbjuItgGOVl76AEA4X7EZxThKszW-bvGuonJejzA";
+  
+  try {
+    const result =  googleSheets.spreadsheets.values.update({
+      auth,
+      spreadsheetId: spreadSheetsID,
+      range: "Página1!A2:F2",
+      valueInputOption: "USER_ENTERED",
+      resource: {
+       values: [[user, bairro, enchente, casa_vulneravel, ser_voluntario, precisa_de_doacao]],
+               },
+    });
+    console.log('%d cells updated.', result.data);
+    return result;
+  } catch (err) {
+    // TODO (Developer) - Handle exception
+    throw err;
+  }
+}
+
 
 /**
  * Send link preview
