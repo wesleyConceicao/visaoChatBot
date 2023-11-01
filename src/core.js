@@ -386,23 +386,26 @@ export async function start(client, conversation) {
                 media
               );
             }
-            var user = message.from.replace(/\D/g, '');
               
-            if(reply.id === 7 ){
+            if(reply.id === 7){
                   var bairro = input;
                 }
-            if( reply.id === 5){
+
+            if( reply.id === 5 || reply.id === 9){
                   var enchente = input;
                 } 
-            if(reply.id === 8 && reply.id === 9){
-                  var casa_vulneravel = input;
+
+            if(reply.id === 8 || reply.id === 12){
+              var casa_vulneravel = input;
                 }
-            if (reply.id === 14){
-                  var precisa_de_doacao = input;
-                }
-            if (reply.id === 11){
+                
+            if (reply.id === 10 || reply.id === 11){
                   var ser_voluntario = input;
                 }
+            if (reply.id === 13 || reply.id === 14){
+                  var precisa_de_doacao = input;
+                }
+               
             // TODO: Verifty
             // if (reply.hasOwnProperty("message")) {
             //   reply.message = reply.message.replace(/\$input/g, input);
@@ -415,7 +418,7 @@ export async function start(client, conversation) {
             await watchSendList(client, message, reply);
             await watchForward(client, message, reply);
             // await getValues();
-            await updateValues(user, bairro, enchente, casa_vulneravel, precisa_de_doacao, ser_voluntario)
+            await updateValues(bairro, enchente, casa_vulneravel, precisa_de_doacao, ser_voluntario)
             // await appendValues(user, bairro, enchente, casa_vulneravel, precisa_de_doacao, ser_voluntario);
 
             if (reply.hasOwnProperty("afterReply")) {
@@ -489,7 +492,7 @@ async function updateValues(user, bairro, enchente, casa_vulneravel,precisa_de_d
       range: "Página1!A2:F2",
       valueInputOption: "USER_ENTERED",
       resource: {
-       values: [[user, bairro, enchente, casa_vulneravel, ser_voluntario, precisa_de_doacao]],
+       values: [[bairro, enchente, casa_vulneravel, precisa_de_doacao, ser_voluntario]],
                },
     });
     console.log('%d cells updated.', result.data);
